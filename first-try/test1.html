@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>backbone.js-frist-try</title>
+</head>
+<body>
+    <!-- 点击按钮会弹出对话框，输入内容之后，把内容拼上固定的字符串显示到页面上 -->
+    <!-- Model代表一个数据模型，Collection是模型的一个集合，而View是用来处理页面以及简单的页面逻辑的。-->
+    <button id="check">点击</button>
+    <ul id="stu-list">
+    </ul>
+    <script src="js/jquery-3.2.1.js"></script>
+    <script src="js/underscore.js"></script>
+    <script src="js/backbone.js"></script>
+    <script>
+    (function ($) {
+        Student = Backbone.Model.extend({
+            //创建一个Student的对象，拥有name属性
+            name: null
+        });
+
+        Students = Backbone.Collection.extend({
+            //Students对象的集合
+            // 如果触发了add方法就将这个model显示到视图上
+            initialize: function (models, options) {
+                    this.bind("add", options.view.addOneStu);
+            }
+        });
+
+        AppView = Backbone.View.extend({
+            // 每一个Backbone.js的view都有一个el属性，el属性引用浏览器创建DOM对象
+            el: $("body"),
+            initialize: function () {
+                //构造函数，实例化一个students集合类
+                //并且以字典方式传入AppView的对象
+                this.students = new Students(null, { view : this })
+            },
+            events: {
+                //事件绑定，绑定Dom中id为check的元素
+                // click触发checkIn方法
+                "click #check":  "checkIn",
+            },
+            // checkIn构造Student对象放到已经初始化Students这个collection中
+            checkIn: function () {
+                var student_name = prompt("你的名字？");
+                if(student_name == "") student_name = 'null';
+                var student = new Student({ name: student_name });
+                // collection的add方法将创建的model添加进去
+                this.students.add(student);
+            },
+            // 添加一个model
+            addOneStu: function(model) {
+                $("#stu-list").append("<li>同学 <b>" + model.get('name') + "</b> say：hello！</li>");
+            }
+        });
+        //实例化AppView
+        var appview = new AppView;
+    })(jQuery);
+    </script>
+</body>
+</html>

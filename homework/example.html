@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>backbone pattern design</title>
+</head>
+<style type="text/css">
+    .main {
+        width: 300px;
+        height: 100px;
+        margin: 50px auto;
+    }
+</style>
+<body>
+<div class="main">
+    <button id="check">点击</button>
+    <div id="titleshow"></div>
+</div>
+
+<script src="js/jquery-3.2.1.js"></script>
+<script src="js/underscore.js"></script>
+<script src="js/backbone.js"></script>
+<script>
+    (function ($) {
+        var myModel = Backbone.Model.extend({
+            //创建一个myModel的对象，拥有title属性
+            defaults: {
+                title: 'first title',
+            },
+            initialize: function () {
+                // model作为订阅者订阅了一个名为change的方法，它指向的只是一句简单的输出
+                this.on('change', function () {
+                    console.log("Title for this model has changed");
+                });
+            }
+        });
+
+        var AppView = Backbone.View.extend({
+            // 每一个Backbone.js的view都有一个el属性，el属性引用浏览器创建DOM对象
+            el: $("body"),
+            // 在view初始化的时候，我们需要绑定对应model的关系
+            initialize: function () {
+                this.mymodel = new myModel();
+                $('#titleshow').html("The origin title is [" + this.mymodel.get("title") + "]");
+            },
+            events: {
+                //事件绑定，绑定Dom中id为check的元素
+                // click触发checkIn方法
+                "click #check":  "checkIn",
+            },
+            // checkIn方法改变title
+            checkIn: function () {
+                var student_name = prompt("Please input your new title:");
+                if(student_name !== null){
+                    // trigger的调用是在set函数里面
+                    // 在为model，set一段属性时，它会触发绑定在该model上的change方法
+                    // 当change事件发布，对应的订阅对象就会去响应，从而实现model指向的东西
+                    this.mymodel.set("title", student_name);
+                    $('#titleshow').html("The new title is [" + this.mymodel.get("title") + "]");
+                    console.log("The changed title is [" + this.mymodel.get("title") + "]");
+                }
+            }
+        });
+        var appView = new AppView();
+    })(jQuery);
+</script>
+</body>
+</html>
